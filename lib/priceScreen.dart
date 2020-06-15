@@ -11,13 +11,14 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  String selectedCurrency = 'USD';
-  String btc = '1 BTC = ';
-  String eth = '1 ETH = ';
-  String ltc = '1 LTC = ';
+  String selectedCurrency = 'AUD';
+//  String btc = '1 BTC = ';
+//  String eth = '1 ETH = ';
+//  String ltc = '1 LTC = ';
   CoinData coinData = CoinData();
-  Map currencyExchange = Map();
+  Map<String, String> currencyExchange = Map();
   SizeConfig sizeConfig = SizeConfig();
+  bool isWaiting = false;
 
   DropdownButton<String> androidDropDown() {
     List<DropdownMenuItem<String>> items = [];
@@ -50,8 +51,7 @@ class _PriceScreenState extends State<PriceScreen> {
 
   CupertinoPicker iOSPicker() {
     List<Text> items = [];
-
-    for (String currency in currenciesList) {
+    for (String currency in supportedCurrencies.keys) {
       items.add(Text(currency));
     }
 
@@ -76,33 +76,29 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 
   void getCoinData(String currency) async {
+    isWaiting = true;
     try {
       for (String crypto in cryptoList) {
         var data = await coinData.getCoinData(crypto, currency);
 
+        isWaiting = false;
+
         if (data != null) {
           var rate = data['rate'];
           int roundedRate = rate.toInt();
-          currencyExchange[crypto] =
-              '1 $crypto = ' + roundedRate.toString() + ' $currency';
+
+          setState(() {
+            currencyExchange[crypto] = roundedRate.toString();
+          });
         } else {
-          currencyExchange[crypto] = '1 $crypto = not found' + ' $currency';
+          setState(() {
+            currencyExchange[crypto] = 'not found';
+          });
         }
       }
 
-      setState(() {
-        btc = currencyExchange['BTC'];
-        eth = currencyExchange['ETH'];
-        ltc = currencyExchange['LTC'];
-      });
-
       print(currencyExchange);
     } catch (e) {
-      setState(() {
-        btc = '1 BTC = not found' + ' $currency';
-        eth = '1 ETH = not found' + ' $currency';
-        ltc = '1 LTC = not found' + ' $currency';
-      });
       showColoredToast('Error ' + e.errorCode.toString() + ' - ' + e.errorMsg);
     }
   }
@@ -118,34 +114,20 @@ class _PriceScreenState extends State<PriceScreen> {
     getCoinData(selectedCurrency);
   }
 
-  Padding getPaddingWidget(String text) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-          SizeConfig.safeBlockHorizontal * 4,
-          SizeConfig.safeBlockHorizontal * 4,
-          SizeConfig.safeBlockHorizontal * 4,
-          0),
-      child: Card(
-        color: Colors.lightBlueAccent,
-        elevation: 5.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
+  Column makeCards() {
+    List<CryptoCard> cryptoCards = [];
+    for (String crypto in cryptoList) {
+      cryptoCards.add(
+        CryptoCard(
+          cryptoCurrency: crypto,
+          selectedCurrency: selectedCurrency,
+          value: isWaiting ? '?' : currencyExchange[crypto],
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: SizeConfig.safeBlockHorizontal * 3,
-            horizontal: SizeConfig.safeBlockHorizontal * 7,
-          ),
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: SizeConfig.safeBlockHorizontal * 4.5,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: cryptoCards,
     );
   }
 
@@ -181,9 +163,7 @@ class _PriceScreenState extends State<PriceScreen> {
                   ),
                 ),
               ),
-              getPaddingWidget(btc),
-              getPaddingWidget(eth),
-              getPaddingWidget(ltc),
+              makeCards(),
             ],
           ),
           Container(
@@ -203,6 +183,45 @@ class _PriceScreenState extends State<PriceScreen> {
         onPressed: () {
           refresh();
         },
+      ),
+    );
+  }
+}
+
+class CryptoCard extends StatelessWidget {
+  const CryptoCard({this.value, this.selectedCurrency, this.cryptoCurrency});
+
+  final String value;
+  final String selectedCurrency;
+  final String cryptoCurrency;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+          SizeConfig.safeBlockHorizontal * 4,
+          SizeConfig.safeBlockHorizontal * 4,
+          SizeConfig.safeBlockHorizontal * 4,
+          0),
+      child: Card(
+        color: Colors.lightBlueAccent,
+        elevation: 5.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              vertical: SizeConfig.safeBlockHorizontal * 3,
+              horizontal: SizeConfig.safeBlockHorizontal * 7),
+          child: Text(
+            '1 $cryptoCurrency = $value $selectedCurrency',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: SizeConfig.safeBlockHorizontal * 4.5,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }

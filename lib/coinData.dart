@@ -9,30 +9,6 @@ const kCoinApiKey = 'AB930A98-4F09-4973-A49E-727C1F5C65C9';
 const kCoinApiURL = 'https://rest.coinapi.io/v1/exchangerate';
 //BTC/USD?apiKey=API
 
-const List<String> currenciesList = [
-  'AUD',
-  'BRL',
-  'CAD',
-  'CNY',
-  'EUR',
-  'GBP',
-  'HKD',
-  'IDR',
-  'ILS',
-  'INR',
-  'JPY',
-  'MXN',
-  'NOK',
-  'NZD',
-  'PLN',
-  'RON',
-  'RUB',
-  'SEK',
-  'SGD',
-  'USD',
-  'ZAR'
-];
-
 const List<String> cryptoList = [
   'BTC',
   'ETH',
