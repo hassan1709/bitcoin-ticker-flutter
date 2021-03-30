@@ -10,7 +10,7 @@ The objective here is to learn about using Cupertino and Material Widgets in par
 
 ## What is this app?
 
-Crypto currency price checking app.Through this app, you'll be able to monitor your bitcoin investents on the move!
+A crypto currency price checking app.Through this app, you'll be able to monitor your bitcoin investents on the move!
 
 ![Finished App](https://github.com/londonappbrewery/Images/blob/master/bitcoin-flutter-demo.gif)
 
@@ -24,5 +24,3 @@ Crypto currency price checking app.Through this app, you'll be able to monitor y
 
 
 
-
-![End Banner](https://github.com/londonappbrewery/Images/blob/master/readme-end-banner.png)
